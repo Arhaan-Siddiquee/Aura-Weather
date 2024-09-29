@@ -4,8 +4,8 @@ import { BiSearch } from 'react-icons/bi';
 import { WiDayCloudy, WiThermometer, WiHumidity, WiStrongWind, WiBarometer, WiFog, WiSunrise, WiSunset } from 'react-icons/wi';
 import WeatherChart from './components/WeatherChart';
 import WeeklyForecast from './components/WeeklyForecast'; 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'; // Import Leaflet components
-import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import MapSection from './components/MapSection';
 
 const App = () => {
@@ -13,6 +13,7 @@ const App = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [weeklyData, setWeeklyData] = useState(null); 
   const [error, setError] = useState('');
+  const [isFahrenheit, setIsFahrenheit] = useState(false); // New state for temperature unit
 
   const apiKey = '8359b800547f79cc3fc714e8e8f91df2';
 
@@ -51,6 +52,18 @@ const App = () => {
     }
   };
 
+  const convertToFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+
+  const toggleTemperatureUnit = () => {
+    setIsFahrenheit((prevUnit) => !prevUnit);
+  };
+
+  const displayTemperature = (tempInCelsius) => {
+    return isFahrenheit
+      ? `${convertToFahrenheit(tempInCelsius).toFixed(1)} °F`
+      : `${tempInCelsius} °C`;
+  };
+
   const convertUnixToTime = (unixTimestamp) => {
     const date = new Date(unixTimestamp * 1000);
     return date.toLocaleTimeString();
@@ -83,19 +96,24 @@ const App = () => {
       {/* Error Message */}
       {error && <p className="text-red-500 mb-2">{error}</p>}
 
+      
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full max-w-6xl">
         <div className="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 ">
-            <WeatherCard
+          
+          <WeatherCard
             title="Weather Condition"
             value={weatherData ? weatherData.weather[0].main : ''}
             icon={<WiDayCloudy size={48} className="text-blue-400" />}
           />
+          <div>
           <WeatherCard
             title="Temperature"
-            value={weatherData ? `${weatherData.main.temp} °C` : ''}
+            value={weatherData ? displayTemperature(weatherData.main.temp) : ''}
             icon={<WiThermometer size={48} className="text-yellow-400" />}
           />
+          
+          </div>
           <WeatherCard
             title="Humidity"
             value={weatherData ? `${weatherData.main.humidity} %` : ''}
@@ -117,11 +135,17 @@ const App = () => {
             icon={<WiFog size={48} className="text-white" />}
           />
         </div>
+
+        {/* Map Section */}
         <div>
-      {/* Other sections of your app */}
-      
-      <MapSection weatherData={weatherData} city={city} />
-    </div>
+          <MapSection weatherData={weatherData} city={city} />
+        </div>
+        <button
+          onClick={toggleTemperatureUnit}
+           className="bg-blue-500 text-white px-10 py-3 rounded mr-11 "
+          >
+           Switch to {isFahrenheit ? 'Celsius' : 'Fahrenheit'}
+          </button>
       </div>
 
       {/* Additional Info Section */}
@@ -129,7 +153,7 @@ const App = () => {
         <div className="bg-[#2a2a2a] p-4 rounded-md shadow-md">
           <h2 className="text-lg font-bold mb-3">Additional Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <WeatherCard
+            <WeatherCard
               title="Pressure"
               value={weatherData ? `${weatherData.main.pressure} hPa` : ''}
               icon={<WiBarometer size={48} className="text-red-400" />}
@@ -168,8 +192,6 @@ const App = () => {
           {weeklyData && <WeeklyForecast dailyData={weeklyData} />}
         </div>
       </div>
-
-
     </div>
   );
 };
