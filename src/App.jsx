@@ -3,10 +3,15 @@ import WeatherCard from './components/WeatherCard';
 import { BiSearch } from 'react-icons/bi';
 import { WiDayCloudy, WiThermometer, WiHumidity, WiStrongWind, WiBarometer, WiFog, WiSunrise, WiSunset } from 'react-icons/wi';
 import WeatherChart from './components/WeatherChart';
+import WeeklyForecast from './components/WeeklyForecast'; 
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'; // Import Leaflet components
+import 'leaflet/dist/leaflet.css'; // Import Leaflet styles
+import MapSection from './components/MapSection';
 
 const App = () => {
   const [city, setCity] = useState('');
   const [weatherData, setWeatherData] = useState(null);
+  const [weeklyData, setWeeklyData] = useState(null); 
   const [error, setError] = useState('');
 
   const apiKey = '8359b800547f79cc3fc714e8e8f91df2';
@@ -24,9 +29,17 @@ const App = () => {
       const data = await response.json();
       setWeatherData(data);
       setError('');
+
+      const { lat, lon } = data.coord;
+      const forecastResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=current,minutely,hourly,alerts&units=metric&appid=${apiKey}`
+      );
+      const forecastData = await forecastResponse.json();
+      setWeeklyData(forecastData.daily);
     } catch (error) {
       console.error(error);
       setWeatherData(null);
+      setWeeklyData(null);
       setError(error.message);
     }
   };
@@ -48,7 +61,7 @@ const App = () => {
       {/* Header */}
       <header className="w-full max-w-6xl mb-4">
         <div className="flex flex-col md:flex-row md:justify-between items-center p-3 bg-[#2a2a2a] rounded-md shadow-md">
-          <h1 className="text-3xl font-bold mb-2 md:mb-0 text-teal-400">🌤 Weatherly</h1>
+          <h1 className="text-3xl font-bold mb-2 md:mb-0 text-[#00ccff]">🌤 Aura-Weather</h1>
           <form onSubmit={handleSearch} className="flex items-center w-full md:w-auto">
             <input
               type="text"
@@ -59,7 +72,7 @@ const App = () => {
             />
             <button
               type="submit"
-              className="bg-teal-600 hover:bg-teal-500 p-3 rounded-r-lg flex items-center transition duration-300 ease-in-out"
+              className="bg-[#00ccff] bg-opacity-50 hover:bg-[#00ccff] p-3 rounded-r-lg flex items-center transition duration-300 ease-in-out"
             >
               <BiSearch size={20} className="text-white" />
             </button>
@@ -72,9 +85,8 @@ const App = () => {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full max-w-6xl">
-        {/* Weather Information - Left Side */}
-        <div className="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <WeatherCard
+        <div className="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 ">
+            <WeatherCard
             title="Weather Condition"
             value={weatherData ? weatherData.weather[0].main : ''}
             icon={<WiDayCloudy size={48} className="text-blue-400" />}
@@ -105,8 +117,11 @@ const App = () => {
             icon={<WiFog size={48} className="text-white" />}
           />
         </div>
-
-
+        <div>
+      {/* Other sections of your app */}
+      
+      <MapSection weatherData={weatherData} city={city} />
+    </div>
       </div>
 
       {/* Additional Info Section */}
@@ -114,7 +129,7 @@ const App = () => {
         <div className="bg-[#2a2a2a] p-4 rounded-md shadow-md">
           <h2 className="text-lg font-bold mb-3">Additional Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <WeatherCard
+          <WeatherCard
               title="Pressure"
               value={weatherData ? `${weatherData.main.pressure} hPa` : ''}
               icon={<WiBarometer size={48} className="text-red-400" />}
@@ -142,10 +157,19 @@ const App = () => {
       <div className="w-full max-w-6xl mt-4">
         <div className="bg-[#2a2a2a] p-4 rounded-md shadow-md">
           <h2 className="text-lg font-bold mb-3">Weather Data Chart</h2>
-          {/* Weather Chart */}
           {weatherData && <WeatherChart weatherData={weatherData} />}
         </div>
       </div>
+
+      {/* Weekly Forecast Section */}
+      <div className="w-full max-w-6xl mt-4">
+        <div className="bg-[#2a2a2a] p-4 rounded-md shadow-md">
+          <h2 className="text-lg font-bold mb-3">Weekly Forecast</h2>
+          {weeklyData && <WeeklyForecast dailyData={weeklyData} />}
+        </div>
+      </div>
+
+
     </div>
   );
 };

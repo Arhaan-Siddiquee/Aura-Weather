@@ -20,7 +20,7 @@ const WeatherChart = ({ weatherData }) => {
           weatherData.main.pressure
         ],
         fill: false,
-        borderColor: 'rgba(75, 192, 192, 1)',
+        borderColor: 'rgba(0, 204, 255, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         borderWidth: 2,
       },
