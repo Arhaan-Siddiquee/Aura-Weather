@@ -13,7 +13,7 @@ const App = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [weeklyData, setWeeklyData] = useState(null); 
   const [error, setError] = useState('');
-  const [isFahrenheit, setIsFahrenheit] = useState(false); // New state for temperature unit
+  const [isFahrenheit, setIsFahrenheit] = useState(false); 
 
   const apiKey = '8359b800547f79cc3fc714e8e8f91df2';
 
@@ -96,7 +96,12 @@ const App = () => {
       {/* Error Message */}
       {error && <p className="text-red-500 mb-2">{error}</p>}
 
-      
+      <button
+          onClick={toggleTemperatureUnit}
+           className="bg-blue-500 text-white px-10 py-3 rounded mr-11 "
+          >
+           Switch to {isFahrenheit ? 'Celsius' : 'Fahrenheit'}
+          </button>
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full max-w-6xl">
         <div className="col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 ">
@@ -140,12 +145,7 @@ const App = () => {
         <div>
           <MapSection weatherData={weatherData} city={city} />
         </div>
-        <button
-          onClick={toggleTemperatureUnit}
-           className="bg-blue-500 text-white px-10 py-3 rounded mr-11 "
-          >
-           Switch to {isFahrenheit ? 'Celsius' : 'Fahrenheit'}
-          </button>
+
       </div>
 
       {/* Additional Info Section */}
