@@ -98,7 +98,7 @@ const App = () => {
 
       <button
           onClick={toggleTemperatureUnit}
-           className="bg-blue-500 text-white px-10 py-3 rounded mr-11 mb-8 "
+           className="bg-blue-500 text-white px-10 py-3 rounded mr-11 mb-5 "
           >
            Switch to {isFahrenheit ? 'Celsius' : 'Fahrenheit'}
           </button>
